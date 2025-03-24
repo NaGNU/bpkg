@@ -4,7 +4,7 @@ The most stupid package manager on the world
 
 ## Overview 📚
 
-NaGNU/bpkg is open source and better then dpkg
+NaGNU/bpkg is open source and better than dpkg
 
 ## Project Status 🛠
 - [x] Sync repositories 
