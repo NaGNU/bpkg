@@ -1,5 +1,7 @@
 # Bomj PacKaGe tool 📦
 
+# DEV branch isnt working ❗
+
 The most stupid package manager on the world 
 
 ## Overview 📚
