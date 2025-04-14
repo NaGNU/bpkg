@@ -57,7 +57,7 @@ sync() {
 	done
 	i=1
 	while [ $i -le $reposcount ]; do
-		repourl=$(sed -n "s/github.com/raw.githubusercontent.com/g${i}p" /var/bpkg/temp/repos | cut -d '|' -f 2)
+		repourl=$(sed -n "s/github.com/raw.githubusercontent.com/g;${i}p" /var/bpkg/temp/repos | cut -d '|' -f 2)
 		ver=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 3)
 		reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
 		ls /var/bpkg/db/$reponame/timestamp &> /dev/null
@@ -81,10 +81,10 @@ sync() {
 
 search() {
 	input[0]=''
-	neededpkg=(${input[*]})
+	neededpkg=(${input[@]})
 	grep -v '^&' /etc/bpkg.d/list | sed 's/ /\n/g' > /var/bpkg/temp/repos
 	reposcount=$(wc -l /var/bpkg/temp/repos | cut -d ' ' -f 1)
-	notfound=0
+	notfound=()
 	i=1; while [ $i -le $reposcount ]; do	
 		reponame=$(sed -n "${i}p" /var/bpkg/temp/repos | cut -d '|' -f 1)
 		packagescount=$(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages | length')
@@ -92,9 +92,9 @@ search() {
 			foundedpkg=$(cat /var/bpkg/db/$reponame/pkglist.json | jq '.packages['$j'].name' | sed -e 's/"//g' )
 			k=0; while [ $k -lt ${#neededpkg[@]} ]; do 
 				if [ $foundedpkg == ${neededpkg[${k}]} ]; then
-					echo -e "|[${finestr}]	    	    founded | ${foundedpkg} | ${reponame} |"
-					notfound=$((notfound + 1))
-					break
+					echo -e "|[${finestr}]	    	      found | ${foundedpkg} | ${reponame} |"
+				else
+					notfound[$((${#notfound[*]} + 1))]=$(echo "${neededpkg[${k}]} ") 
 				fi
 				k=$((k + 1))
 			done
@@ -102,7 +102,14 @@ search() {
 		done
 		i=$((i + 1))
 	done
-	i
+	notfound[$((${#notfound[*]} + 1))]=notfound[$((${#notfound[*]}))] # лютый костыль ХЗ как без него жить
+	j=0; while [ $j -lt ${#neededpkg[@]} ]; do
+		foundcheck=$(echo ${notfound[@]} | grep -o "${neededpkg[${j}]} " | wc -w)
+		if [ $foundcheck -ge $reposcount ]; then
+			echo -e "|[${failstr}] 		  not found | ${neededpkg[${j}]} |"
+		fi
+		j=$((j + 1))
+	done
 	rm -f /var/bpkg/temp/repos
 }
 # pkgs
