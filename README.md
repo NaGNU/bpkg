@@ -10,6 +10,6 @@ NaGNU/bpkg is open source and better than dpkg
 - [x] Sync repositories 
 - [ ] Delete packages
 - [ ] Install packages(currently under development) 🛠
-- [ ] List installed packages
+- [x] List installed packages
 - [ ] Searching packages in repo(currently under development) 🛠
 - [ ] Upgrading packages
